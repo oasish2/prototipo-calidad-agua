@@ -154,12 +154,57 @@ while True:
         print(f"Hay {len(cuerpos_bajos_medios)} cuerpos de agua con IRCA ≤ 35% (riesgo medio o inferior).")
         
     elif opcion == "4":
-            if cuerpos_de_agua:
-                print("\nCuerpos guardados e ID:")
-            for i, cuerpo in enumerate(cuerpos_de_agua, start=1):
-                print(f"{i}. {cuerpo.get('clave primaria', 'not id')} {cuerpo['nombre']} (Riesgo: {cuerpo['nivel_riesgo']})")
-            else:
-                print("No hay cuerpos de agua guardados.")
+     if cuerpos_de_agua:
+        print("\nCuerpos guardados e ID:")
+        for i, cuerpo in enumerate(cuerpos_de_agua, start=1):
+            print(f"{i}. {cuerpo.get('clave primaria', 'not id')} {cuerpo['nombre']} (Riesgo: {cuerpo['nivel_riesgo']})")
+        
+        # Preguntar al usuario si desea actualizar o eliminar
+        accion = input("\n¿Deseas actualizar o eliminar un cuerpo de agua? (actualizar/eliminar/salir): ").lower()
+        if accion == "actualizar":
+            try:
+                id_actualizar = int(input("Ingresa el ID del cuerpo de agua que deseas actualizar: "))
+                cuerpo_a_actualizar = next((c for c in cuerpos_de_agua if c["clave primaria"] == id_actualizar), None)
+                if cuerpo_a_actualizar:
+                    print(f"Seleccionaste: {cuerpo_a_actualizar['nombre']} (Riesgo: {cuerpo_a_actualizar['nivel_riesgo']})")
+                    nuevo_nombre = input("Ingresa el nuevo nombre (deja vacío para no cambiarlo): ")
+                    nuevo_irca = input("Ingresa el nuevo valor de IRCA (deja vacío para no cambiarlo): ")
+                    
+                    # Actualizar los datos
+                    if nuevo_nombre:
+                        cuerpo_a_actualizar["nombre"] = nuevo_nombre
+                    if nuevo_irca:
+                        nuevo_irca = float(nuevo_irca)
+                        cuerpo_a_actualizar["irca"] = nuevo_irca
+                        cuerpo_a_actualizar["nivel_riesgo"] = clasificar_irca(nuevo_irca)
+                    
+                    guardar_datos(cuerpos_de_agua)
+                    print("¡Cuerpo de agua actualizado con éxito!")
+                else:
+                    print("No se encontró un cuerpo de agua con ese ID.")
+            except ValueError:
+                print("Por favor, ingresa un número válido.")
+        elif accion == "eliminar":
+            try:
+                id_eliminar = int(input("Ingresa el ID del cuerpo de agua que deseas eliminar: "))
+                # Buscar el índice del cuerpo de agua por ID
+                indice_a_eliminar = next((i for i, c in enumerate(cuerpos_de_agua) if c["clave primaria"] == id_eliminar), None)
+                if indice_a_eliminar is not None:
+                    # Eliminar el cuerpo de agua usando pop
+                    cuerpo_eliminado = cuerpos_de_agua.pop(indice_a_eliminar)
+                    guardar_datos(cuerpos_de_agua)
+                    print(f"¡Cuerpo de agua eliminado con éxito! ({cuerpo_eliminado['nombre']})")
+                else:
+                    print("No se encontró un cuerpo de agua con ese ID.")
+            except ValueError:
+                print("Por favor, ingresa un número válido.")
+        elif accion == "salir":
+            print("Volviendo al menú principal...")
+        else:
+            print("Opción no válida.")
+     else:
+        print("No hay cuerpos de agua guardados.")
+
             
     elif opcion == "5":
         # Salir del programa
